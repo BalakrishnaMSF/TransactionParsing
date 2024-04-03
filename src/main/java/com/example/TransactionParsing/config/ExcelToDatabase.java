@@ -1,4 +1,4 @@
-package com.example.TransactionParsing.service.Impl;
+package com.example.TransactionParsing.config;
 
 import com.example.TransactionParsing.entity.Transaction;
 import com.example.TransactionParsing.enums.TransactionType;

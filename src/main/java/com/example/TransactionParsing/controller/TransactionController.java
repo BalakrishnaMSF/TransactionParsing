@@ -1,6 +1,7 @@
 package com.example.TransactionParsing.controller;
 
 
+import com.example.TransactionParsing.config.ExcelWriter;
 import com.example.TransactionParsing.entity.Transaction;
 import com.example.TransactionParsing.service.TransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,7 +47,10 @@ public class TransactionController {
             Date endDate = dateFormat.parse(endDateStr);
 
             List<Transaction> transactions = transactionService.getTransactionsBetweenDates(startDate, endDate);
-            return ResponseEntity.ok(transactions);
+            String filePath = "transactions.xlsx";
+            ExcelWriter.writeTransactionsToExcel(transactions, filePath);
+
+            return ResponseEntity.ok("Transactions written to Excel file: " + filePath);
         } catch (ParseException e) {
             return ResponseEntity.badRequest().body("Invalid date format");
         }
