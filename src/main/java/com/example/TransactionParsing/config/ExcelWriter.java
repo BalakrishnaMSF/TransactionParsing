@@ -2,11 +2,15 @@ package com.example.TransactionParsing.config;
 
 import com.example.TransactionParsing.entity.Transaction;
 import com.example.TransactionParsing.enums.TransactionType;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.util.AreaReference;
+import org.apache.poi.ss.util.CellReference;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFTable;
+import org.apache.poi.xssf.usermodel.XSSFTableColumn;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
+import javax.swing.table.TableColumn;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.time.LocalDate;
@@ -41,17 +45,12 @@ public class ExcelWriter {
             // Display details at the top of the sheet
             Row detailsRow = sheet.createRow(3);
             detailsRow.createCell(0).setCellValue("Total Credit: " + totalCredit);
-
             Row details = sheet.createRow(4);
             details.createCell(0).setCellValue("Total Debit: " + totalDebit);
-
             Row detail = sheet.createRow(5);
             detail.createCell(0).setCellValue("Net Amount: " + netAmount);
-
-
-
             Row detail2 = sheet.createRow(6);
-            detail2.createCell(0).setCellValue("Transactions between the period from " +startDate + " to " +endDate);
+            detail2.createCell(0).setCellValue("Transactions between the time period");
 
             // Create header row
             Row headerRow = sheet.createRow(8);
@@ -71,6 +70,33 @@ public class ExcelWriter {
                 row.createCell(2).setCellValue(transaction.getAmount());
                 row.createCell(3).setCellValue(transaction.getTransactionType().toString());
             }
+
+            // Define the data range for the table
+            AreaReference dataRange = new AreaReference(
+                    new CellReference(8, 0), // Start cell
+                    new CellReference(rowNum - 1, 3), // End cell
+                    workbook.getSpreadsheetVersion()
+            );
+
+            // Create the table
+            XSSFSheet xssfSheet = (XSSFSheet) sheet;
+            XSSFTable table = xssfSheet.createTable(dataRange);
+
+            // Set the table name
+            table.getCTTable().setName("TransactionTable");
+
+            // Style the table
+            table.getCTTable().addNewTableStyleInfo().setName("TableStyleMedium9");
+
+            // Create table columns
+            XSSFTableColumn column;
+            for (int i = 0; i < 4; i++) {
+                column = table.getColumns().get(i);
+                column.setName(headerRow.getCell(i).getStringCellValue());
+            }
+
+            // Auto filter for the table
+            table.getCTTable().addNewAutoFilter().setRef(dataRange.formatAsString());
 
             // Write to file with absolute path
             try (FileOutputStream fileOut = new FileOutputStream(filePath)) {
