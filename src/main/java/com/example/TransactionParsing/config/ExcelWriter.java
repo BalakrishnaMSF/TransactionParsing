@@ -1,12 +1,18 @@
 package com.example.TransactionParsing.config;
 
 import com.example.TransactionParsing.entity.Transaction;
-import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
+// Other imports...
 
 public class ExcelWriter {
 
@@ -23,21 +29,22 @@ public class ExcelWriter {
 
             // Write data rows
             int rowNum = 1;
+            DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
             for (Transaction transaction : transactions) {
                 Row row = sheet.createRow(rowNum++);
-                row.createCell(0).setCellValue(transaction.getDate().toString());
+                LocalDate localDate = transaction.getDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+                row.createCell(0).setCellValue(dateFormatter.format(localDate));
                 row.createCell(1).setCellValue(transaction.getNotes());
                 row.createCell(2).setCellValue(transaction.getAmount());
                 row.createCell(3).setCellValue(transaction.getTransactionType().toString());
             }
 
-            // Write to file
+            // Write to file with absolute path
             try (FileOutputStream fileOut = new FileOutputStream(filePath)) {
                 workbook.write(fileOut);
             }
         } catch (IOException e) {
-            throw new RuntimeException();
+            e.printStackTrace();
         }
     }
 }
-
