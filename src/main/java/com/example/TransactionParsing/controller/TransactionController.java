@@ -1,6 +1,5 @@
 package com.example.TransactionParsing.controller;
 
-
 import com.example.TransactionParsing.config.ExcelWriter;
 import com.example.TransactionParsing.entity.Transaction;
 import com.example.TransactionParsing.service.TransactionService;
@@ -37,7 +36,6 @@ public class TransactionController {
         List<Transaction> transactions = transactionService.getTransactions();
         return ResponseEntity.ok(transactions);
     }
-
     @GetMapping("/getTransactionsBetweenDates")
     public ResponseEntity<?> getTransactionsBetweenDates(@RequestParam("startDate") String startDateStr,
                                                          @RequestParam("endDate") String endDateStr){
@@ -48,7 +46,7 @@ public class TransactionController {
 
             List<Transaction> transactions = transactionService.getTransactionsBetweenDates(startDate, endDate);
             String filePath = "transactions.xlsx";
-            ExcelWriter.writeTransactionsToExcel(transactions, filePath);
+            ExcelWriter.writeTransactionsToExcel(transactions, filePath,startDate,endDate);
 
             return ResponseEntity.ok("Transactions written to Excel file: " + filePath);
         } catch (ParseException e) {
